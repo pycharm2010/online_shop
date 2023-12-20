@@ -1,8 +1,13 @@
+from turtledemo.__main__ import DONE
+
+from django.contrib.auth import authenticate
+from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from shred.utility import check_phone, send_email
-from users.models import User, VIA_PHONE
+from shred.utility import check_phone, send_email, check_user_type
+from users.models import User, VIA_PHONE, CODE_VERIFIED, NEW
 
 
 class SignUpSerializers(serializers.ModelSerializer):
@@ -64,10 +69,12 @@ class SignUpSerializers(serializers.ModelSerializer):
             raise ValidationError(data)
         return data
 
-
-
     def to_representation(self, instance):
         data = super(SignUpSerializers, self).to_representation(instance)
         data.update(instance.token())
 
         return data
+
+
+
+

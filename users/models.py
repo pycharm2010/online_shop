@@ -9,6 +9,7 @@ from shred.models import BaseModel
 from rest_framework_simplejwt.tokens import RefreshToken
 
 # Create your models here.
+
 NEW, CODE_VERIFIED = ('new', 'code_verified')
 ORDINARY_USER, MANAGER, ADMIN = ("ordinary_user", 'manager', 'admin')
 VIA_PHONE = ('via_phone',)
@@ -104,3 +105,4 @@ class UserConfirmation(BaseModel):
         if self.verify_type == VIA_PHONE:  # 30-mart 11-33 + 5minutes
             self.expiration_time = datetime.now() + timedelta(minutes=PHONE_EXPIRE)
         super(UserConfirmation, self).save(*args, **kwargs)
+

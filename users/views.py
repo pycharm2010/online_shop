@@ -3,14 +3,15 @@ from datetime import datetime
 from django.shortcuts import render
 from rest_framework.exceptions import ValidationError
 
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, UpdateAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 from shred.utility import send_email
 from users.models import User, NEW, CODE_VERIFIED, VIA_PHONE
-from users.serializers import SignUpSerializers
+from users.serializers import SignUpSerializers, LoginSerializer
 
 
 # Create your views here.
@@ -57,7 +58,7 @@ class VerifyAPIView(APIView):
 
 
 class GetNewVerification(APIView):
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request, *args, **kwargs):
         user = self.request.user
@@ -88,3 +89,27 @@ class GetNewVerification(APIView):
                 "message": "Kodingiz hali ishlatish uchun yaroqli. Biroz kutib turing"
             }
             raise ValidationError(data)
+
+
+class LoginView(TokenObtainPairView, UpdateAPIView):
+    serializer_class = LoginSerializer
+    # permission_classes = [IsAuthenticated, ]
+    # http_method_names = ['patch', 'put']
+
+    # def update(self, request, *args, **kwargs):
+    #     super(LoginView, self).update(request, *args, **kwargs)
+    #     data = {
+    #         'success': True,
+    #         "message": "User updated successfully",
+    #         'auth_status': self.request.user.auth_status,
+    #     }
+    #     return Response(data, status=200)
+    #
+    # def partial_update(self, request, *args, **kwargs):
+    #     super(LoginView, self).partial_update(request, *args, **kwargs)
+    #     data = {
+    #         'success': True,
+    #         "message": "User updated successfully",
+    #         'auth_status': self.request.user.auth_status,
+    #     }
+    #     return Response(data, status=200)

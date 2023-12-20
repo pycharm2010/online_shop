@@ -1,3 +1,4 @@
+import re
 import threading
 
 from django.core.mail import EmailMessage
@@ -5,6 +6,8 @@ from django.template.loader import render_to_string
 from rest_framework.exceptions import ValidationError
 
 from phonenumbers import parse, is_valid_number
+
+username_regex = re.compile(r"^[a-zA-Z0-9_.-]+$")
 
 
 def check_phone(phone_number):
@@ -21,6 +24,21 @@ def check_phone(phone_number):
         raise ValidationError(data)
 
     return parsed_phone
+
+
+def check_user_type(user_input):
+    parsed_phone = parse(user_input, None)
+    if is_valid_number(parsed_phone):
+        user_input = 'phone'
+    elif re.fullmatch(username_regex, user_input):
+        user_input = 'username'
+    else:
+        data = {
+            "success": False,
+            "message": "Username yoki telefon raqamingiz noto'g'ri"
+        }
+        raise ValidationError(data)
+    return user_input
 
 
 class EmailThread(threading.Thread):
