@@ -22,6 +22,8 @@ class PostSerializer(serializers.ModelSerializer):
     post_comments_count = serializers.SerializerMethodField('get_post_comment_count')
     me_liked = serializers.SerializerMethodField('get_me_likes')
 
+
+
     class Meta:
         model = Post
         fields = ('id',
@@ -32,6 +34,7 @@ class PostSerializer(serializers.ModelSerializer):
                   'is_top',
                   'created_time',
                   'me_liked',
+                  'hit_count',
                   'post_like_count',
                   'post_comments_count')
 
@@ -50,3 +53,5 @@ class PostSerializer(serializers.ModelSerializer):
             except PostLike.DoesNotExist:
                 return False
         return False
+
+

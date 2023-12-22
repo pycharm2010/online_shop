@@ -1,17 +1,20 @@
+import logging
 from datetime import datetime
+from turtledemo.__main__ import DONE
 
-from django.shortcuts import render
-from rest_framework.exceptions import ValidationError
+from django.contrib.auth import authenticate
+from rest_framework.exceptions import ValidationError, PermissionDenied
 
 from rest_framework.generics import CreateAPIView, UpdateAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from shred.utility import send_email
+from shred.utility import send_email, check_user_type
 from users.models import User, NEW, CODE_VERIFIED, VIA_PHONE
-from users.serializers import SignUpSerializers, LoginSerializer
+from users.serializers import SignUpSerializers
+from rest_framework import serializers
 
 
 # Create your views here.
@@ -28,7 +31,7 @@ class VerifyAPIView(APIView):
     def post(self, *args, **kwargs):
         user = self.request.user
         code = self.request.data.get('code')
-        print(code)
+
         self.check_verify(user, code)
         return Response(
             data={
@@ -42,7 +45,7 @@ class VerifyAPIView(APIView):
     @staticmethod
     def check_verify(user, code):
         verifies = user.verify_codes.filter(expiration_time__gte=datetime.now(), code=code, is_confirmed=False)
-        print(verifies, verifies)
+
         if not verifies.exists():
             data = {
                 'success': False,
@@ -58,17 +61,19 @@ class VerifyAPIView(APIView):
 
 
 class GetNewVerification(APIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = [IsAuthenticated,]
 
     def get(self, request, *args, **kwargs):
-        user = self.request.user
+
+        user = request.user
+        print(user, '<=======================================')
+        logging.debug(f"User: {user}")
         self.check_verification(user)
 
         if user.auth_type == VIA_PHONE:
             code = user.create_verify_code(VIA_PHONE)
             send_email(user.phone, code)
         else:
-            print("User auth_type:", user.auth_type)
             data = {
                 "message": "Telefon raqami notogri"
             }
@@ -89,27 +94,3 @@ class GetNewVerification(APIView):
                 "message": "Kodingiz hali ishlatish uchun yaroqli. Biroz kutib turing"
             }
             raise ValidationError(data)
-
-
-class LoginView(TokenObtainPairView, UpdateAPIView):
-    serializer_class = LoginSerializer
-    # permission_classes = [IsAuthenticated, ]
-    # http_method_names = ['patch', 'put']
-
-    # def update(self, request, *args, **kwargs):
-    #     super(LoginView, self).update(request, *args, **kwargs)
-    #     data = {
-    #         'success': True,
-    #         "message": "User updated successfully",
-    #         'auth_status': self.request.user.auth_status,
-    #     }
-    #     return Response(data, status=200)
-    #
-    # def partial_update(self, request, *args, **kwargs):
-    #     super(LoginView, self).partial_update(request, *args, **kwargs)
-    #     data = {
-    #         'success': True,
-    #         "message": "User updated successfully",
-    #         'auth_status': self.request.user.auth_status,
-    #     }
-    #     return Response(data, status=200)

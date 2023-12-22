@@ -5,4 +5,7 @@ from users.models import ADMIN
 
 class AdminPermission(BasePermission):
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.user_roles == ADMIN
+        if request.user.is_anonymous:
+            return False
+
+        return request.user.user_roles == ADMIN

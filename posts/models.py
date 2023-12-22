@@ -3,7 +3,8 @@ from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.db.models import UniqueConstraint
 from hitcount.models import HitCountMixin, HitCount
-
+from django.contrib.sessions.models import Session
+from django.contrib.sessions.backends.db import SessionStore
 from shred.models import BaseModel
 
 
@@ -42,23 +43,33 @@ class SubCategory(BaseModel):
 
 class Post(BaseModel, HitCountMixin):
     sub_category = models.ForeignKey(SubCategory, on_delete=models.CASCADE)
-
     title = models.CharField(max_length=256)
-    price = models.IntegerField(default=0, )
+    price = models.IntegerField(default=0)
     contact = models.TextField()
     is_top = models.BooleanField(default=False)
+    hit_count = models.BigIntegerField(default=0)
+
+    def update_hit_count(self, request):
+        session_key = request.session.session_key
+        if not session_key:
+            request.session.create()
+            session_key = request.session.session_key
+
+        if not Session.objects.filter(session_key=session_key).exists():
+            super().update_hit_count(request)
 
     @property
-    def hit_count(self):
+    def calculate_hit_count(self):
         # Post uchun yangi HitCount obyekti yaratish
         hit_count, created = HitCount.objects.get_or_create(content_type=None, object_pk=self.pk)
         return hit_count
 
 
 class Image(models.Model):
-    post = models.ForeignKey('Post', on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='post_image/',validators=[
+    post = models.ForeignKey('Post', on_delete=models.CASCADE, related_name='images')
+    image = models.ImageField(upload_to='post_image/', validators=[
         FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'heic', 'heif'])])
+
 
 
 class PostComment(BaseModel):
@@ -92,3 +103,5 @@ class PostLike(BaseModel):
 
     def __str__(self):
         return f"like by {self.author}"
+
+
