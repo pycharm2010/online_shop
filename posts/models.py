@@ -1,10 +1,11 @@
+import uuid
+
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.db.models import UniqueConstraint
 from hitcount.models import HitCountMixin, HitCount
 from django.contrib.sessions.models import Session
-from django.contrib.sessions.backends.db import SessionStore
 from shred.models import BaseModel
 
 
@@ -17,11 +18,6 @@ class Category(BaseModel):
         FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'heic', 'heif'])])
 
     ads_count = models.IntegerField(default=0)
-
-    def save(self, *args, **kwargs):
-        # SubCategory obyekti saqlanayotganda ads_count ni yangilab qo'yamiz
-        self.ads_count = self.post_set.count()
-        super().save(*args, **kwargs)
 
 
 class SubCategory(BaseModel):
@@ -66,10 +62,10 @@ class Post(BaseModel, HitCountMixin):
 
 
 class Image(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, primary_key=True, unique=True, editable=False, )
     post = models.ForeignKey('Post', on_delete=models.CASCADE, related_name='images')
     image = models.ImageField(upload_to='post_image/', validators=[
         FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'heic', 'heif'])])
-
 
 
 class PostComment(BaseModel):
@@ -103,5 +99,3 @@ class PostLike(BaseModel):
 
     def __str__(self):
         return f"like by {self.author}"
-
-

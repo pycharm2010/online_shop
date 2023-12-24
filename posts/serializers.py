@@ -1,11 +1,14 @@
 from rest_framework import serializers
 
-from posts.models import Post, Category, SubCategory, PostLike
+from posts.models import Post, Category, SubCategory, PostLike, Image, PostComment
 
 
 class CategorySerializers(serializers.ModelSerializer):
-    model = Category
-    fields = '__all__'
+    id = serializers.UUIDField(read_only=True)
+
+    class Meta:
+        model = Category
+        fields = ('id', 'title', 'image', 'ads_count', 'created_time')
 
 
 class SubCategorySerializers(serializers.ModelSerializer):
@@ -13,7 +16,7 @@ class SubCategorySerializers(serializers.ModelSerializer):
 
     class Meta:
         model = SubCategory
-        fields = ('id', 'title')
+        fields = ('id', 'title', 'category', 'created_time')
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -21,8 +24,6 @@ class PostSerializer(serializers.ModelSerializer):
     post_like_count = serializers.SerializerMethodField('get_post_likes_count')
     post_comments_count = serializers.SerializerMethodField('get_post_comment_count')
     me_liked = serializers.SerializerMethodField('get_me_likes')
-
-
 
     class Meta:
         model = Post
@@ -55,3 +56,25 @@ class PostSerializer(serializers.ModelSerializer):
         return False
 
 
+class ImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Image
+        fields = ('id', 'post', 'image')
+
+
+class PostCommitSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(read_only=True)
+    author = serializers.UUIDField(read_only=True)
+    replies = serializers.SerializerMethodField('get_replies')
+
+
+    class Meta:
+        model = PostComment
+        fields = ('id', 'author', 'post', 'comment', 'parent', 'created_time', 'replies')
+
+    def get_replies(self, obj):
+        if obj.child.exists():
+            serializer = self.__class__(obj.child.all(), many=True, context=self.context)
+            return serializer.data
+        else:
+            None

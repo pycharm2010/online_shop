@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',  # yangi
     'phonenumbers',
     'hitcount',
+    'drf_yasg',
 
     # local app
     'users',
@@ -99,6 +100,17 @@ SIMPLE_JWT = {
 
 ROOT_URLCONF = 'core.urls'
 
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'api_key': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'Authorization',
+        },
+    },
+}
+
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -161,7 +173,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR/'media/'
+MEDIA_ROOT = BASE_DIR / 'media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field

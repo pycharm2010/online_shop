@@ -12,6 +12,7 @@ djangorestframework-simplejwt = "*"
 pillow = "*"
 phonenumbers = "*"
 django = "==4.0"
+drf-yasg = "*"
 
 [dev-packages]
 
