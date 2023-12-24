@@ -10,25 +10,31 @@ from shred.utility import check_phone, send_email, check_user_type
 from users.models import User, VIA_PHONE, CODE_VERIFIED, NEW
 
 
+class UserSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = ("id", "username")
+
+
 class SignUpSerializers(serializers.ModelSerializer):
     id = serializers.UUIDField(read_only=True)
 
     def __init__(self, *args, **kwargs):
         super(SignUpSerializers, self).__init__(*args, **kwargs)
-        self.fields['phone'] = serializers.CharField(required=True)
+        self.fields["phone"] = serializers.CharField(required=True)
 
     class Meta:
         model = User
         fields = (
-            'id',
-            'auth_type',
-            'auth_status',
-
-
+            "id",
+            "auth_type",
+            "auth_status",
         )
         extra_kwargs = {
-            'auth_type': {'read_only': True, 'required': False},
-            'auth_status': {'read_only': True, 'required': False}
+            "auth_type": {"read_only": True, "required": False},
+            "auth_status": {"read_only": True, "required": False},
         }
 
     def create(self, validated_data):
@@ -47,26 +53,22 @@ class SignUpSerializers(serializers.ModelSerializer):
 
     @staticmethod
     def auth_validate(data):
-        user_input = data.get('phone')
+        user_input = data.get("phone")
 
         input_type = check_phone(user_input)
 
-        if input_type == 'phone':
+        if input_type == "phone":
             if User.objects.filter(phone=user_input).exists():
-                raise ValidationError({
-                    "success": False,
-                    "message": "Bu telefon raqami allaqachon ma'lumotlar bazasida bor"
-                })
-            data = {
-                "phone": user_input,
-                "auth_type": VIA_PHONE
-            }
+                raise ValidationError(
+                    {
+                        "success": False,
+                        "message": "Bu telefon raqami allaqachon ma'lumotlar bazasida bor",
+                    }
+                )
+            data = {"phone": user_input, "auth_type": VIA_PHONE}
 
         else:
-            data = {
-                'success': False,
-                'message': "You must send email or phone number"
-            }
+            data = {"success": False, "message": "You must send email or phone number"}
             raise ValidationError(data)
         return data
 

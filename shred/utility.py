@@ -14,13 +14,9 @@ def check_phone(phone_number):
     parsed_phone = parse(phone_number, None)
 
     if is_valid_number(parsed_phone):
-        parsed_phone = 'phone'
+        parsed_phone = "phone"
     else:
-
-        data = {
-            'success': False,
-            'message': "Telefon nomeringiz noto'ri"
-        }
+        data = {"success": False, "message": "Telefon nomeringiz noto'ri"}
         raise ValidationError(data)
 
     return parsed_phone
@@ -29,20 +25,19 @@ def check_phone(phone_number):
 def check_user_type(user_input):
     parsed_phone = parse(user_input, None)
     if is_valid_number(parsed_phone):
-        user_input = 'phone'
+        user_input = "phone"
     elif re.fullmatch(username_regex, user_input):
-        user_input = 'username'
+        user_input = "username"
     else:
         data = {
             "success": False,
-            "message": "Username yoki telefon raqamingiz noto'g'ri"
+            "message": "Username yoki telefon raqamingiz noto'g'ri",
         }
         raise ValidationError(data)
     return user_input
 
 
 class EmailThread(threading.Thread):
-
     def __init__(self, email):
         self.email = email
         threading.Thread.__init__(self)
@@ -55,28 +50,26 @@ class Email:
     @staticmethod
     def send_email(data):
         email = EmailMessage(
-            subject=data['subject'],
-            body=data['body'],
-            to=[data['to_email']]
+            subject=data["subject"], body=data["body"], to=[data["to_email"]]
         )
-        if data.get('content_type') == "html":
-            email.content_subtype = 'html'
+        if data.get("content_type") == "html":
+            email.content_subtype = "html"
         EmailThread(email).start()
 
 
 def send_email(email, code):
     html_content = render_to_string(
-        'email/authentication/activate_account.html',
-        {"code": code}
+        "email/authentication/activate_account.html", {"code": code}
     )
     Email.send_email(
         {
             "subject": "Royhatdan otish",
             "to_email": email,
             "body": html_content,
-            "content_type": "html"
+            "content_type": "html",
         }
     )
+
 
 # def send_phone_code(phone, code):
 #     account_sid = config('account_sid')

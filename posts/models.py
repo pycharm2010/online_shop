@@ -14,15 +14,23 @@ from shred.models import BaseModel
 
 class Category(BaseModel):
     title = models.CharField(max_length=256, unique=True)
-    image = models.ImageField(upload_to='category_image/', validators=[
-        FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'heic', 'heif'])])
+    image = models.ImageField(
+        upload_to="category_image/",
+        validators=[
+            FileExtensionValidator(
+                allowed_extensions=["jpg", "jpeg", "png", "heic", "heif"]
+            )
+        ],
+    )
 
     ads_count = models.IntegerField(default=0)
 
 
 class SubCategory(BaseModel):
     title = models.CharField(max_length=256, unique=True)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='categores')
+    category = models.ForeignKey(
+        Category, on_delete=models.CASCADE, related_name="categores"
+    )
 
     ads_count = models.IntegerField(default=0)
 
@@ -57,27 +65,36 @@ class Post(BaseModel, HitCountMixin):
     @property
     def calculate_hit_count(self):
         # Post uchun yangi HitCount obyekti yaratish
-        hit_count, created = HitCount.objects.get_or_create(content_type=None, object_pk=self.pk)
+        hit_count, created = HitCount.objects.get_or_create(
+            content_type=None, object_pk=self.pk
+        )
         return hit_count
 
 
 class Image(models.Model):
-    id = models.UUIDField(default=uuid.uuid4, primary_key=True, unique=True, editable=False, )
-    post = models.ForeignKey('Post', on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to='post_image/', validators=[
-        FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'heic', 'heif'])])
+    id = models.UUIDField(
+        default=uuid.uuid4,
+        primary_key=True,
+        unique=True,
+        editable=False,
+    )
+    post = models.ForeignKey("Post", on_delete=models.CASCADE, related_name="images")
+    image = models.ImageField(
+        upload_to="post_image/",
+        validators=[
+            FileExtensionValidator(
+                allowed_extensions=["jpg", "jpeg", "png", "heic", "heif"]
+            )
+        ],
+    )
 
 
 class PostComment(BaseModel):
-    author = models.ForeignKey('users.User', on_delete=models.CASCADE)
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
+    author = models.ForeignKey("users.User", on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
     comment = models.TextField()
     parent = models.ForeignKey(
-        'self',
-        on_delete=models.CASCADE,
-        related_name='child',
-        null=True,
-        blank=True
+        "self", on_delete=models.CASCADE, related_name="child", null=True, blank=True
     )
 
     def __str__(self):
@@ -85,16 +102,13 @@ class PostComment(BaseModel):
 
 
 class PostLike(BaseModel):
-    author = models.ForeignKey('users.User', on_delete=models.CASCADE)
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='likes')
+    author = models.ForeignKey("users.User", on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="likes")
     like_count = models.IntegerField(default=0)
 
     class Meta:
         constraints = [
-            UniqueConstraint(
-                fields=['author', 'post'],
-                name='postLikeUnique'
-            )
+            UniqueConstraint(fields=["author", "post"], name="postLikeUnique")
         ]
 
     def __str__(self):
