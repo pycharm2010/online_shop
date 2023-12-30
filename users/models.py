@@ -10,9 +10,9 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 # Create your models here.
 
-NEW, CODE_VERIFIED = ('new', 'code_verified')
+NEW, CODE_VERIFIED, DONE = ('new', 'code_verified', 'done')
 ORDINARY_USER, MANAGER, ADMIN = ("ordinary_user", 'manager', 'admin')
-VIA_PHONE = ('via_phone',)
+VIA_PHONE, VIA_EMAIL = ('via_phone', 'via_email')
 
 
 class User(BaseModel, AbstractUser):
@@ -25,12 +25,18 @@ class User(BaseModel, AbstractUser):
     AUTH_STATUS = (
         (NEW, NEW),
         (CODE_VERIFIED, CODE_VERIFIED),
+        (DONE, DONE)
+    )
+    AUTH_TYPE_CHOICES = (
+        (VIA_EMAIL, VIA_EMAIL),
+        (VIA_PHONE, VIA_PHONE)
     )
 
-    phone = models.CharField(max_length=13, unique=True)
+    phone = models.CharField(max_length=13, unique=True, blank=True, null=True)
+    email = models.EmailField(blank=True, null=True,unique=True)
     user_roles = models.CharField(max_length=31, choices=USER_ROLES, default=ORDINARY_USER)
     auth_status = models.CharField(max_length=31, choices=AUTH_STATUS, default=NEW)
-    auth_type = models.CharField(max_length=31, default=VIA_PHONE)
+    auth_type = models.CharField(max_length=31, choices=AUTH_TYPE_CHOICES)
 
     def __str__(self):
         return self.username
@@ -40,6 +46,7 @@ class User(BaseModel, AbstractUser):
         return f"{self.first_name} {self.last_name}"
 
     def create_verify_code(self, verify_type):
+
         code = "".join([str(random.randint(0, 10000) % 10) for _ in range(4)])
         UserConfirmation.objects.create(
             user_id=self.id,
@@ -50,14 +57,14 @@ class User(BaseModel, AbstractUser):
 
     def check_username(self):
         if not self.username:
-            temp_username = f'instagram-{uuid.uuid4().__str__().split("-")[-1]}'  # instagram-23324fsdf
+            temp_username = f'infinity-{uuid.uuid4().__str__().split("-")[-1]}'
             while User.objects.filter(username=temp_username):
                 temp_username = f"{temp_username}{random.randint(0, 9)}"
             self.username = temp_username
 
     def check_email(self):
         if self.email:
-            normalize_email = self.email.lower()  # aKhamdjon@gmail.com -> akhamdjon@gmail.com
+            normalize_email = self.email.lower()
             self.email = normalize_email
 
     def check_pass(self):
@@ -88,7 +95,7 @@ class User(BaseModel, AbstractUser):
 
 
 PHONE_EXPIRE = 2
-EMAIL_EXPIRE = 5
+EMAIL_EXPIRE = 2
 
 
 class UserConfirmation(BaseModel):
@@ -102,7 +109,8 @@ class UserConfirmation(BaseModel):
         return str(self.user.__str__())
 
     def save(self, *args, **kwargs):
-        if self.verify_type == VIA_PHONE:  # 30-mart 11-33 + 5minutes
+        if self.verify_type == VIA_PHONE:
             self.expiration_time = datetime.now() + timedelta(minutes=PHONE_EXPIRE)
+        else:
+            self.expiration_time = datetime.now() + timedelta(minutes=EMAIL_EXPIRE)
         super(UserConfirmation, self).save(*args, **kwargs)
-

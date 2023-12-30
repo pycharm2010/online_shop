@@ -11,8 +11,13 @@ psycopg2 = "*"
 djangorestframework-simplejwt = "*"
 pillow = "*"
 phonenumbers = "*"
-django = "==4.0"
+django = "*"
 drf-yasg = "*"
+gunicorn = "*"
+psycopg2-binary = "*"
+django-environ = "*"
+vonage = "*"
+twilio = "*"
 
 [dev-packages]
 

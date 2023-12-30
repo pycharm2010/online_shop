@@ -1,33 +1,39 @@
 import re
 import threading
 
+import phonenumbers
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from rest_framework.exceptions import ValidationError
 
 from phonenumbers import parse, is_valid_number
+from twilio.rest import Client
 
 username_regex = re.compile(r"^[a-zA-Z0-9_.-]+$")
+phone_regex = re.compile(r"(\+[0-9]+\s*)?(\([0-9]+\))?[\s0-9\-]+[0-9]+")
+email_regex = re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b")
 
 
-def check_phone(phone_number):
-    parsed_phone = parse(phone_number, None)
-
-    if is_valid_number(parsed_phone):
-        parsed_phone = "phone"
+def check_email_phone_number(email_or_phone_number):
+    if re.fullmatch(phone_regex, email_or_phone_number):
+        email_or_phone_number = 'phone'
+    elif re.fullmatch(email_regex,email_or_phone_number):
+        email_or_phone_number = 'email'
     else:
-        data = {"success": False, "message": "Telefon nomeringiz noto'ri"}
+        data = {
+            "success": False,
+            "message": "Telefon nomeringiz noto'ri"
+        }
         raise ValidationError(data)
 
-    return parsed_phone
+    return email_or_phone_number
 
 
 def check_user_type(user_input):
-    parsed_phone = parse(user_input, None)
-    if is_valid_number(parsed_phone):
-        user_input = "phone"
-    elif re.fullmatch(username_regex, user_input):
+    if re.fullmatch(username_regex, user_input):
         user_input = "username"
+    elif re.fullmatch(phone_regex, user_input):
+        user_input = 'phone'
     else:
         data = {
             "success": False,
@@ -71,12 +77,14 @@ def send_email(email, code):
     )
 
 
-# def send_phone_code(phone, code):
-#     account_sid = config('account_sid')
-#     auth_token = config('auth_token')
-#     client = Client(account_sid, auth_token)
-#     client.messages.create(
-#         body=f"Salom do'stim! Sizning tasdiqlash kodingiz: {code}\n",
-#         from_="+99899325242",
-#         to=f"{phone}"
-#     )
+def send_phone_code(phone, code):
+
+    account_sid = 'AC4a55ab41bad6021b3c284ac6f3bf1c7b'
+    auth_token = '5064dd78c73b8fbefd12f2f6bef84e9f'
+    client = Client(account_sid, auth_token)
+
+    client.messages.create(
+        body=f"Salom do'stim! Sizning tasdiqlash kodingiz: {code}\n",
+        from_='',
+        to=f"{phone}"
+    )
