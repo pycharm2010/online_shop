@@ -124,18 +124,13 @@ class SubCategoryRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIV
 
 
 # Post Image CRUD API View
-class PostListApiView(
-    generics.ListAPIView,
-):
+class PostListApiView(generics.ListAPIView,):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = [
         AllowAny,
     ]
     pagination_class = CustomPagination
-
-    def get_queryset(self):
-        return Post.objects.all()
 
 
 class PostCreateView(generics.CreateAPIView):
@@ -241,7 +236,6 @@ class PostLikeListAPIView(generics.ListAPIView):
 
 
 class PostLikeAPIView(APIView):
-    throttle_classes = [PostLikeThrottle]
 
     def post(self, request, pk):
         try:

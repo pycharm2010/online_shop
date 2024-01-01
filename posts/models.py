@@ -45,30 +45,12 @@ class SubCategory(BaseModel):
         return f"SubCategory count {self.ads_count}"
 
 
-class Post(BaseModel, HitCountMixin):
-    sub_category = models.ForeignKey(SubCategory, on_delete=models.CASCADE)
+class Post(BaseModel):
+    sub_category = models.ForeignKey(SubCategory, on_delete=models.CASCADE, related_name='sub_categoryes')
     title = models.CharField(max_length=256)
     price = models.IntegerField(default=0)
     contact = models.TextField()
     is_top = models.BooleanField(default=False)
-    hit_count = models.BigIntegerField(default=0)
-
-    def update_hit_count(self, request):
-        session_key = request.session.session_key
-        if not session_key:
-            request.session.create()
-            session_key = request.session.session_key
-
-        if not Session.objects.filter(session_key=session_key).exists():
-            super().update_hit_count(request)
-
-    @property
-    def calculate_hit_count(self):
-        # Post uchun yangi HitCount obyekti yaratish
-        hit_count, created = HitCount.objects.get_or_create(
-            content_type=None, object_pk=self.pk
-        )
-        return hit_count
 
 
 class Image(models.Model):

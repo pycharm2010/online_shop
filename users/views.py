@@ -10,8 +10,9 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from shred.permission import AdminPermission
+from shred.throttling import SendCodeThrottle
 from shred.utility import send_email
-from users.models import User, NEW, CODE_VERIFIED, VIA_PHONE
+from users.models import User, NEW, CODE_VERIFIED, VIA_PHONE, VIA_EMAIL
 from users.serializers import SignUpSerializers, ChangeUserInformation, LoginSerializer, LoginRefreshSerializer, \
     LogoutSerializer
 
@@ -68,14 +69,16 @@ class VerifyAPIView(APIView):
 
 class GetNewVerification(APIView):
     permission_classes = [IsAuthenticated, ]
-
     def get(self, request, *args, **kwargs):
+
         user = self.request.user
-        print(user.auth_type == 'via_phone')
+        self.check_verification(user)
         if user.auth_type == VIA_PHONE:
             code = user.create_verify_code(VIA_PHONE)
-            print('code', code)
             send_email(user.phone, code)
+        elif user.auth_type == 'via_email':
+            code = user.create_verify_code(VIA_EMAIL)
+            send_email(user.email, code)
         else:
             data = {
                 "message": "Email yoki telefon raqami notogri"

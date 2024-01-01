@@ -25,10 +25,12 @@ class PostSerializer(serializers.ModelSerializer):
     post_like_count = serializers.SerializerMethodField("get_post_likes_count")
     post_comments_count = serializers.SerializerMethodField("get_post_comment_count")
     me_liked = serializers.SerializerMethodField("get_me_likes")
+    author = UserSerializer(read_only=True)
 
     class Meta:
         model = Post
         fields = (
+            "author",
             "id",
             "title",
             "sub_category",
@@ -37,9 +39,9 @@ class PostSerializer(serializers.ModelSerializer):
             "is_top",
             "created_time",
             "me_liked",
-            "hit_count",
             "post_like_count",
             "post_comments_count",
+
         )
 
     def get_post_likes_count(self, obj):

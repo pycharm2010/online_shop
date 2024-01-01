@@ -79,12 +79,12 @@ def send_email(email, code):
 
 def send_phone_code(phone, code):
 
-    account_sid = 'AC4a55ab41bad6021b3c284ac6f3bf1c7b'
-    auth_token = '5064dd78c73b8fbefd12f2f6bef84e9f'
+    account_sid = 'ACf6d5d0e1454cbbcbdcabd784754674ff'
+    auth_token = 'e4b416ce36cd3679248b9baa32e54526'
     client = Client(account_sid, auth_token)
 
     client.messages.create(
         body=f"Salom do'stim! Sizning tasdiqlash kodingiz: {code}\n",
-        from_='',
+        from_='+998906757507',
         to=f"{phone}"
     )
