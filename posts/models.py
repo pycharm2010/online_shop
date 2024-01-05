@@ -23,7 +23,6 @@ class Category(BaseModel):
         ],
     )
 
-    ads_count = models.IntegerField(default=0)
 
 
 class SubCategory(BaseModel):
@@ -51,6 +50,7 @@ class Post(BaseModel):
     price = models.IntegerField(default=0)
     contact = models.TextField()
     is_top = models.BooleanField(default=False)
+    add_count = models.IntegerField(default=0)
 
 
 class Image(models.Model):
@@ -95,3 +95,9 @@ class PostLike(BaseModel):
 
     def __str__(self):
         return f"like by {self.author}"
+
+
+class Purchase(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='purchases')
+    buyer = models.ForeignKey('users.User', on_delete=models.CASCADE)
+    purchase_date = models.DateTimeField(auto_now_add=True)

@@ -229,3 +229,32 @@ class LoginRefreshSerializer(TokenObtainPairSerializer):
 
 class LogoutSerializer(serializers.Serializer):
     refresh = serializers.CharField()
+
+
+class ResetPasswordSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(read_only=True)
+    password = serializers.CharField(min_length=8, required=True, write_only=True)
+    confirm_password = serializers.CharField(min_length=8, required=True, write_only=True)
+
+    class Meta:
+        model = User
+        fields = ('id', 'password', 'confirm_password')
+
+    def validate(self, data):
+        password = data.get('password', None)
+        confirm_password = data.get('confirm_password', None)
+        if password != confirm_password:
+            data = {
+                "success": False,
+                "message": "Parollaringiz qiymati bir-biriga teng emas"
+            }
+            raise ValidationError(data)
+        if password:
+            validate_password(password)
+            return data
+
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password')
+        instance.set_password(password)
+        super(ResetPasswordSerializer, self).update(validated_data, instance)
+

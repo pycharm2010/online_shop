@@ -1,23 +1,32 @@
 from rest_framework import serializers
 
-from posts.models import Post, Category, SubCategory, PostLike, Image, PostComment
+from posts import models
+from posts.models import Post, Category, SubCategory, PostLike, Image, PostComment, Purchase
 from users.serializers import UserSerializer
 
 
 class CategorySerializers(serializers.ModelSerializer):
     id = serializers.UUIDField(read_only=True)
+    add_count = serializers.SerializerMethodField('get_all_category')
 
     class Meta:
         model = Category
-        fields = ("id", "title", "image", "ads_count", "created_time")
+        fields = ("id", "title", "image", "add_count", "created_time")
+
+    def get_all_category(self, obj):
+        return obj.categores.count()
 
 
 class SubCategorySerializers(serializers.ModelSerializer):
     id = serializers.UUIDField(read_only=True)
+    add_count = serializers.SerializerMethodField('get_all_category')
 
     class Meta:
         model = SubCategory
-        fields = ("id", "title", "category", "created_time")
+        fields = ("id", "title", "category", 'add_count', "created_time")
+
+    def get_all_category(self, obj):
+        return obj.sub_categoryes.count()
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -26,6 +35,8 @@ class PostSerializer(serializers.ModelSerializer):
     post_comments_count = serializers.SerializerMethodField("get_post_comment_count")
     me_liked = serializers.SerializerMethodField("get_me_likes")
     author = UserSerializer(read_only=True)
+
+
 
     class Meta:
         model = Post
@@ -43,6 +54,7 @@ class PostSerializer(serializers.ModelSerializer):
             "post_comments_count",
 
         )
+
 
     def get_post_likes_count(self, obj):
         return obj.likes.count()
@@ -101,3 +113,8 @@ class PostLikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = PostLike
         fields = ("id", "author", "post")
+
+
+class PurchaseSerializer(serializers.ModelSerializer):
+    model = Purchase
+    fields = '__all__'

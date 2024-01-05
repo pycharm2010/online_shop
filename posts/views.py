@@ -1,6 +1,5 @@
 from typing import List, Type
 
-from django.shortcuts import render
 from rest_framework import generics, status
 from rest_framework.permissions import (
     AllowAny,
@@ -21,10 +20,6 @@ from posts.serializers import (
 )
 from shred.custom_pagination import CustomPagination
 from shred.permission import AdminPermission
-
-from hitcount.views import View
-
-from shred.throttling import PostLikeThrottle
 
 
 # Category CRUD API View
@@ -124,7 +119,7 @@ class SubCategoryRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIV
 
 
 # Post Image CRUD API View
-class PostListApiView(generics.ListAPIView,):
+class PostListApiView(generics.ListAPIView, ):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = [

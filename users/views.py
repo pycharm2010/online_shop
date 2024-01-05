@@ -10,11 +10,10 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from shred.permission import AdminPermission
-from shred.throttling import SendCodeThrottle
 from shred.utility import send_email
 from users.models import User, NEW, CODE_VERIFIED, VIA_PHONE, VIA_EMAIL
 from users.serializers import SignUpSerializers, ChangeUserInformation, LoginSerializer, LoginRefreshSerializer, \
-    LogoutSerializer
+    LogoutSerializer, ResetPasswordSerializer
 
 
 # Create your views here.
@@ -69,6 +68,7 @@ class VerifyAPIView(APIView):
 
 class GetNewVerification(APIView):
     permission_classes = [IsAuthenticated, ]
+
     def get(self, request, *args, **kwargs):
 
         user = self.request.user
@@ -140,7 +140,7 @@ class LoginRefreshView(TokenRefreshView):
 
 class LogOutView(APIView):
     serializer_class = LogoutSerializer
-    permission_classes = [IsAuthenticated, AdminPermission]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=self.request.data)
@@ -156,3 +156,12 @@ class LogOutView(APIView):
             return Response(data, status=205)
         except TokenError:
             return Response(status=400)
+
+
+class ResetPasswordView(UpdateAPIView):
+    serializer_class = ResetPasswordSerializer
+    permission_classes = [IsAuthenticated, ]
+    http_method_names = ['put', 'patch']
+
+    def get_object(self):
+        return self.request.user
