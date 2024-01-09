@@ -7,7 +7,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import AccessToken
 
-from shred.utility import check_email_phone_number, send_email, check_user_type, send_phone_code
+from shred.utility import check_email_phone_number, send_email, check_user_type
 from users.models import User, VIA_PHONE, CODE_VERIFIED, NEW, DONE, VIA_EMAIL
 
 
@@ -44,7 +44,7 @@ class SignUpSerializers(serializers.ModelSerializer):
 
         if user.auth_type == VIA_PHONE:
             code = user.create_verify_code(VIA_PHONE)
-            send_phone_code(user.phone, code)
+            send_email(user.phone, code)
 
         if user.auth_type == VIA_EMAIL:
             code = user.create_verify_code(VIA_EMAIL)

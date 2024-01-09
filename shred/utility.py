@@ -7,7 +7,6 @@ from django.template.loader import render_to_string
 from rest_framework.exceptions import ValidationError
 
 from phonenumbers import parse, is_valid_number
-from twilio.rest import Client
 
 username_regex = re.compile(r"^[a-zA-Z0-9_.-]+$")
 phone_regex = re.compile(r"(\+[0-9]+\s*)?(\([0-9]+\))?[\s0-9\-]+[0-9]+")
@@ -77,14 +76,14 @@ def send_email(email, code):
     )
 
 
-def send_phone_code(phone, code):
-
-    account_sid = 'ACf6d5d0e1454cbbcbdcabd784754674ff'
-    auth_token = 'e4b416ce36cd3679248b9baa32e54526'
-    client = Client(account_sid, auth_token)
-
-    client.messages.create(
-        body=f"Salom do'stim! Sizning tasdiqlash kodingiz: {code}\n",
-        from_='+998906757507',
-        to=f"{phone}"
-    )
+# def send_phone_code(phone, code):
+#
+#     account_sid = 'ACf6d5d0e1454cbbcbdcabd784754674ff'
+#     auth_token = 'e4b416ce36cd3679248b9baa32e54526'
+#     client = Client(account_sid, auth_token)
+#
+#     client.messages.create(
+#         body=f"Salom do'stim! Sizning tasdiqlash kodingiz: {code}\n",
+#         from_='+998906757507',
+#         to=f"{phone}"
+#     )
