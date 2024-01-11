@@ -175,7 +175,7 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [
-    BASE_DIR / 'static'
+    BASE_DIR / 'root/online_shop/static'
 ]
 STATIC_ROOT = 'static-files'
 
