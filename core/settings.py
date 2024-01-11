@@ -1,11 +1,13 @@
 from datetime import timedelta
 from pathlib import Path
+
 from decouple import config
 import os
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY =  config('SECRET_KEY')
+SECRET_KEY = config('SECRET_KEY')
 DEBUG = config("DEBUG")
 
 ALLOWED_HOSTS = ['*']
@@ -132,7 +134,6 @@ DATABASES = {
     }
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 
@@ -175,11 +176,10 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
+    BASE_DIR / 'static'
 ]
 
 STATIC_ROOT = 'static-files'
-
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = "media-files"
