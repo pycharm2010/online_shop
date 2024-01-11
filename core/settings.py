@@ -3,11 +3,10 @@ from pathlib import Path
 from decouple import config
 import os
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY =  config('SECRET_KEY')
 DEBUG = config("DEBUG")
-# SECURITY WARNING: don't run with debug turned on in production!
 
 ALLOWED_HOSTS = ['*']
 
@@ -174,9 +173,11 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
 STATICFILES_DIRS = [
-    BASE_DIR / 'static'
+    os.path.join(BASE_DIR, 'static'),
 ]
+
 STATIC_ROOT = 'static-files'
 
 
